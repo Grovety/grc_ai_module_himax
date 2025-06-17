@@ -1,0 +1,109 @@
+/*
+ * Copyright (c) 2025 Grovety Inc
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+&zephyr_udc0 {
+	usb_cdc_acm_uart: cdc_acm_uart {
+		compatible = "zephyr,cdc-acm-uart";
+		current-speed = <921600>;
+	};
+};
+
+&spi0 {
+	status = "disabled";
+};
+
+&pinctrl {
+	i2c_tof_default: i2c_tof_default {
+		group1 {
+			psels = <NRF_PSEL(TWIM_SDA, 0, 10)>, // P0.10
+					<NRF_PSEL(TWIM_SCL, 0, 22)>; // P0.22
+		};
+	};
+	i2c_tof_sleep: i2c_tof_sleep {
+		group1 {
+			psels = <NRF_PSEL(TWIM_SDA, 0, 10)>, // P0.10
+					<NRF_PSEL(TWIM_SCL, 0, 22)>; // P0.22
+			low-power-enable;
+		};
+	};
+};
+
+&i2c0 {
+	compatible = "nordic,nrf-twim";
+	status = "okay";
+	clock-frequency = <I2C_BITRATE_STANDARD>;
+	zephyr,concat-buf-size = <1024>;
+	pinctrl-0 = <&i2c_tof_default>;
+	pinctrl-1 = <&i2c_tof_sleep>;
+	pinctrl-names = "default", "sleep";
+	vl53l1x: vl53l1x@29 {
+		compatible = "i2c-device";
+		status = "okay";
+		reg = <0x29>;
+	};
+};
+
+&pinctrl {
+	spi1_default: spi1_default {
+		group1 {
+			psels = <NRF_PSEL(SPIS_SCK, 0, 20)>,	// P0.20 - SPI_CLK(PB8)
+					<NRF_PSEL(SPIS_MOSI, 0, 15)>,	// P0.15 - SPI_DO(PB7)
+					<NRF_PSEL(SPIS_MISO, 0, 13)>,	// P0.13 - SPI_DI(PB6)
+					<NRF_PSEL(SPIS_CSN, 0, 2)>;		// P0.02 - SEN_CSW0
+		};
+	};
+	spi1_sleep: spi1_sleep {
+		group1 {
+			psels = <NRF_PSEL(SPIS_SCK, 0, 20)>,
+					<NRF_PSEL(SPIS_MOSI, 0, 15)>,
+					<NRF_PSEL(SPIS_MISO, 0, 13)>,
+					<NRF_PSEL(SPIS_CSN, 0, 2)>;
+			low-power-enable;
+		};
+	};
+};
+
+&spi1 {
+	compatible = "nordic,nrf-spis";
+	def-char = <0xFF>;
+	status = "okay";
+	pinctrl-0 = <&spi1_default>;
+	pinctrl-1 = <&spi1_default>;
+	pinctrl-names = "default", "sleep";
+};
+
+/ {
+	zephyr,user {
+		led-enbl-gpios = <&gpio0 4 GPIO_ACTIVE_HIGH>;			// P0.04 - rgb led enable
+		himax-power-gpios = <&gpio0 31 GPIO_ACTIVE_HIGH>,		// Wakeup,PA1 Himax,open drain
+					        <&gpio0 30 GPIO_ACTIVE_LOW>,		// nReset,no connected
+		                    <&gpio0 19 GPIO_ACTIVE_HIGH>; 		// Power on, switch
+		common-pwron-gpios = <&gpio0 25 GPIO_ACTIVE_HIGH>,		// U10,3v3,active high
+							 <&gpio1 5 GPIO_ACTIVE_HIGH>;		// U12,1v8,active high
+		charger-ctrl-gpios = <&gpio1 2 GPIO_ACTIVE_LOW>,		// P1.02 - BQCE,low level enable charger
+							 <&gpio0 24 GPIO_ACTIVE_LOW>,		// P0.24 - BQCHG,low level when battery is charging
+							 <&gpio1 0 GPIO_ACTIVE_LOW>;		// P1.0 - BQPGOOD,low level when input source is valid
+		sw2-button-gpios = <&gpio0 31 GPIO_ACTIVE_HIGH>;		// P0.31 - SW2 button
+		tof-inter-gpios = <&gpio1 6 GPIO_ACTIVE_LOW>;			// P1.06
+		tof-xshut-gpios = <&gpio1 4 GPIO_ACTIVE_LOW>;			// P1.04
+	};
+};
+
+/ {
+	aliases {
+		wake-up-pins-gpios = &gpio1;
+	};
+};
+
+/ {
+	chosen {
+		zephyr,console = &uart1;
+		cmd,uart = &usb_cdc_acm_uart;
+		himax,spi = &spi1;
+		tof,vl53l1x = &vl53l1x;
+		led,strip = &led_strip;
+	};
+};

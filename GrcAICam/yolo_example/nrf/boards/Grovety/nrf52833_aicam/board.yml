@@ -1,0 +1,5 @@
+board:
+  name: nrf52833_aicam
+  vendor: grovety
+  socs:
+  - name: nrf52833

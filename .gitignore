@@ -1,0 +1,14 @@
+.idea
+venv
+.vscode
+.vs
+x64
+.log
+.bak
+.idea/
+__pycache__/
+venv/
+build/
+
+__pycache__/
+**/_temp_model_0_preamble_data.bin
