@@ -1,0 +1,66 @@
+firmware:
+  enabled: true
+  image: "images/firmware.img"
+    
+detector:
+  enabled: true
+  files:
+    - name: "Detector Model (LPD)"
+      image: "images/lpd/lpd_ssdlite_ocr_no_postprocess_2_vela.tflite"
+      address: 0x00680000
+    - name: "PostProcess"
+      image: "images/lpd/TFLite_Detection_PostProcess_float.tflite"
+      address: 0x00B00000
+
+recognition:
+  enabled: true
+  regions:
+    generic:
+      name: "Generic (LPR + Dict)"
+      files:
+        - name: "Recognition Model (LPR)"
+          image: "images/lpr/generic/lpr_generic_vela.tflite"
+          address: 0x00200000
+        - name: "Dictionary"
+          image: "images/lpr/generic/dict_generic.bin"
+          address: 0x00400000
+    
+    china:
+      name: "China (LPR + Dict)"
+      files:
+        - name: "Recognition Model (LPR)"
+          image: "images/lpr/china/lpr_china_vela.tflite"
+          address: 0x00200000
+        - name: "Dictionary"
+          image: "images/lpr/china/dict_china.bin"
+          address: 0x00400000
+    
+    norway:
+      name: "Norway (LPR + Dict)"
+      files:
+        - name: "Recognition Model (LPR)"
+          image: "images/lpr/norway/lpr_norway_vela.tflite"
+          address: 0x00200000
+        - name: "Dictionary"
+          image: "images/lpr/norway/dict_norway.bin"
+          address: 0x00400000
+    
+    singapore:
+      name: "Singapore (LPR + Dict)"
+      files:
+        - name: "Recognition Model (LPR)"
+          image: "images/lpr/singapore/lpr_singapore_vela.tflite"
+          address: 0x00200000
+        - name: "Dictionary"
+          image: "images/lpr/singapore/dict_singapore.bin"
+          address: 0x00400000
+    
+    usa:
+      name: "USA (LPR + Dict)"
+      files:
+        - name: "Recognition Model (LPR)"
+          image: "images/lpr/usa/lpr_usa_vela.tflite"
+          address: 0x00200000
+        - name: "Dictionary"
+          image: "images/lpr/usa/dict_usa.bin"
+          address: 0x00400000
